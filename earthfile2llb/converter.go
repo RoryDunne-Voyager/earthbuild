@@ -2558,8 +2558,7 @@ func (c *Converter) internalRun(ctx context.Context, opts ConvertRunOpts) (pllb.
 			return pllb.State{}, errors.New("--network=none is not supported with LOCALLY")
 		}
 	}
-
-	if opts.shellWrap == nil {
+	if opts.shellWrap == nil && opts.WithShell {
 		opts.shellWrap = withShellAndEnvVars
 	}
 
@@ -2752,8 +2751,9 @@ func (c *Converter) internalRun(ctx context.Context, opts ConvertRunOpts) (pllb.
 	}
 	// Shell and debugger wrap.
 	prependDebugger := !opts.Locally
-
-	finalArgs = opts.shellWrap(finalArgs, extraEnvVars, opts.WithShell, prependDebugger, isInteractive)
+	if opts.WithShell {
+		finalArgs = opts.shellWrap(finalArgs, extraEnvVars, opts.WithShell, prependDebugger, isInteractive)
+	}
 	if opts.NoCache {
 		// llb.IgnoreCache is not always enough; we will force a different cache key as a work-around
 		finalArgs = append(finalArgs, "#"+uuid.NewString())
